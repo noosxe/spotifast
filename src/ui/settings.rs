@@ -1828,7 +1828,7 @@ pub fn show(app: &mut App, ui: &mut egui::Ui) {
                 "{} {}",
                 gettext(
                     locale,
-                    "Windows Media Player .wmz skins. Drop one on either window to add it.",
+                    "Windows Media Player .wmz skins. Find more in the Internet Archive's collection.",
                 ),
                 names_of(SkinKind::WindowsMediaPlayer)
             ),
@@ -1857,6 +1857,13 @@ pub fn show(app: &mut App, ui: &mut egui::Ui) {
             ),
         )
         .when(app.taskbar_setting_visible()),
+        RowText::new(
+            gettext(locale, "Skins folder"),
+            gettext(
+                locale,
+                "Winamp and Windows Media Player skins are both kept here.",
+            ),
+        ),
     ];
     if section_matches(&needle, &mini_player, &mini_rows) {
         any_visible = true;
@@ -1866,6 +1873,19 @@ pub fn show(app: &mut App, ui: &mut egui::Ui) {
                     .clicked()
                 {
                     app.actions.push(Action::ToggleWinampWindow);
+                }
+            });
+            filtered_row(ui, &palette, &needle, &mini_player, &mini_rows[7], |ui| {
+                if theme::soft_button(
+                    ui,
+                    &palette,
+                    Some(Icon::ExternalLink),
+                    &open_folder,
+                    false,
+                )
+                .clicked()
+                {
+                    app.actions.push(Action::OpenSkinsFolder);
                 }
             });
             let choices = app.winamp.choices.clone();
@@ -1886,7 +1906,6 @@ pub fn show(app: &mut App, ui: &mut egui::Ui) {
                     );
                     ui.add_space(6.0);
                     ui.horizontal(|ui| {
-                        ui.spacing_mut().item_spacing.x = 6.0;
                         if theme::soft_button(
                             ui,
                             &palette,
@@ -1898,17 +1917,6 @@ pub fn show(app: &mut App, ui: &mut egui::Ui) {
                         {
                             app.actions
                                 .push(Action::OpenUrl("https://skins.webamp.org/".into()));
-                        }
-                        if theme::soft_button(
-                            ui,
-                            &palette,
-                            Some(Icon::ExternalLink),
-                            &open_folder,
-                            false,
-                        )
-                        .clicked()
-                        {
-                            app.actions.push(Action::OpenSkinsFolder);
                         }
                     });
                     ui.add_space(6.0);
@@ -1945,9 +1953,23 @@ pub fn show(app: &mut App, ui: &mut egui::Ui) {
                         &palette,
                         &gettext(
                             locale,
-                            "Windows Media Player .wmz skins. Drop one on either window to add it.",
+                            "Windows Media Player .wmz skins. Find more in the Internet Archive's collection.",
                         ),
                     );
+                    ui.add_space(6.0);
+                    if theme::soft_button(
+                        ui,
+                        &palette,
+                        Some(Icon::Globe),
+                        &gettext(locale, "Windows Media Player Skins Collection"),
+                        false,
+                    )
+                    .clicked()
+                    {
+                        app.actions.push(Action::OpenUrl(
+                            "https://archive.org/details/windowsmediaplayerskinscollection".into(),
+                        ));
+                    }
                     let options: Vec<(usize, &str)> = choices
                         .iter()
                         .enumerate()
@@ -1973,19 +1995,6 @@ pub fn show(app: &mut App, ui: &mut egui::Ui) {
                             app.actions
                                 .push(Action::SetSkin(Some(choices[picked].name.clone())));
                         }
-                    }
-                    if showing
-                        .is_some_and(|index| choices[index].kind == SkinKind::WindowsMediaPlayer)
-                    {
-                        ui.add_space(6.0);
-                        skin_note(
-                            ui,
-                            &palette,
-                            &gettext(
-                                locale,
-                                "This skin has no equalizer or playlist window, and its scripts do not run.",
-                            ),
-                        );
                     }
                 });
             }
